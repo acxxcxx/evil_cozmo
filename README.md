@@ -370,27 +370,27 @@ Problem: SEGMENTATION FAULTS
               USB 5V ──→│ MICRO USB   VIN         │
                         │           GND           │
                         │                         │
-    OLED I2C:           │ GND (Common Ground)    │
-    GPIO21 (SDA) ───→   │ GPIO 21 (SDA)  GPIO 22 │ ←─ GPIO22 (SCL)
-    GPIO22 (SCL) ───→   │ (SCL)          GPIO 19 │
+    OLED I2C:           │ GND (Common Ground)     │
+    GPIO21 (SDA) ───→   │ GPIO 21 (SDA)  GPIO 22  │ ←─ GPIO22 (SCL)
+    GPIO22 (SCL) ───→   │ (SCL)          GPIO 19  │
                         │                GPIO 23  │
     SD Card (VSPI):     │                         │
     GPIO18 (SCK)  ──→   │ GPIO 18 (SCK)  GPIO 19  │ ←─ GPIO19 (MISO)
     GPIO23 (MOSI) ──→   │ GPIO 23 (MOSI) GPIO 32  │ ←─ GPIO32 (CS)
                         │                         │
-    Buttons:            │ GPIO 2 (BTN_SELECT)    │
-    GPIO2   ─────→      │ GPIO 4 (BTN_NEXT)      │
-    GPIO4   ─────→      │ GPIO 5 (NRF CE1)       │
-                        │ GPIO 16 (NRF CE2)      │
-    NRF24 #1:           │ GPIO 17 (NRF CSN1)     │
-    GPIO5  (CE) ───→    │ GPIO 18 (NRF SCK)      │
-    GPIO17 (CSN) ──→    │ GPIO 19 (NRF MISO)     │
-    GPIO18 (SCK) ──→    │ GPIO 23 (NRF MOSI)     │
+    Buttons:            │ GPIO 2 (BTN_SELECT)     │
+    GPIO2   ─────→      │ GPIO 4 (BTN_NEXT)       │
+    GPIO4   ─────→      │ GPIO 5 (NRF CE1)        │
+                        │ GPIO 16 (NRF CE2)       │
+    NRF24 #1:           │ GPIO 17 (NRF CSN1)      │
+    GPIO5  (CE) ───→    │ GPIO 18 (NRF SCK)       │
+    GPIO17 (CSN) ──→    │ GPIO 19 (NRF MISO)      │
+    GPIO18 (SCK) ──→    │ GPIO 23 (NRF MOSI)      │
     GPIO19 (MISO) ──→   │                         │
-    GPIO23 (MOSI) ──→   │ GPIO 12 (NRF MISO2)    │ ←─ GPIO12
-                        │ GPIO 13 (NRF MOSI2)    │ ←─ GPIO13
-    NRF24 #2:           │ GPIO 14 (NRF SCK2)     │ ←─ GPIO14
-    GPIO14 (SCK) ───→   │ GPIO 27 (NRF CSN2)     │ ←─ GPIO27
+    GPIO23 (MOSI) ──→   │ GPIO 12 (NRF MISO2)     │ ←─ GPIO12
+                        │ GPIO 13 (NRF MOSI2)     │ ←─ GPIO13
+    NRF24 #2:           │ GPIO 14 (NRF SCK2)      │ ←─ GPIO14
+    GPIO14 (SCK) ───→   │ GPIO 27 (NRF CSN2)      │ ←─ GPIO27
     GPIO12 (MISO) ──→   │                         │
     GPIO13 (MOSI) ──→   │                         │
     GPIO16 (CE) ───→    │                         │
