@@ -114,10 +114,10 @@ void drawWiFiSweepRun() {
     u8g2.setDrawColor(1); u8g2.drawBox(0, 16, 128, HEADER_H);
     u8g2.setDrawColor(0); u8g2.setFont(u8g2_font_6x10_tf); u8g2.drawStr(25, HEADER_Y, "WIFI SWEEPING");
     u8g2.setDrawColor(1); u8g2.setFont(u8g2_font_5x7_tf);
-    u8g2.setCursor(5, 30); u8g2.print("Target: ALL CHANNELS");
-    u8g2.setCursor(10, 34); u8g2.print("Sent: "); u8g2.print(AtomicUtils::safe_load(pkts_deauth_sent));
-    
-    u8g2.setCursor(10, 48); u8g2.print("Scanning Ch 1-13...");
+    u8g2.setCursor(5, 33); u8g2.print("Target: ALL CHANNELS");
+    u8g2.setCursor(10, 42); u8g2.print("Sent: "); u8g2.print(AtomicUtils::safe_load(pkts_deauth_sent));
+    u8g2.setCursor(10, 51); u8g2.print("Scanning Ch 1-13...");
+    u8g2.setFont(u8g2_font_4x6_tf);
     u8g2.drawStr(5, 62, "HOLD SELECT TO STOP");
     u8g2.sendBuffer();
 }

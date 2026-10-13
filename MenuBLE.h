@@ -65,9 +65,9 @@ void sendBleSpam() {
         const uint8_t *device_data = nullptr;
         uint8_t device_len = 0;
 
-        for (int i = 0; i < 6; i++) {
-            current_mac[i] = esp_random() % 256;
-            if (i == 0) current_mac[i] |= 0xC0; // Random Static Address format
+        for (int m = 0; m < 6; m++) {
+            current_mac[m] = esp_random() % 256;
+            if (m == 0) current_mac[m] |= 0xC0; // Random Static Address format
         }
         esp_ble_gap_set_rand_addr(current_mac);
 
@@ -118,10 +118,10 @@ void drawBleSpam() {
     u8g2.setDrawColor(0); u8g2.setFont(u8g2_font_6x10_tf); u8g2.drawStr(30, 25, "BLE SPAM");
     
     u8g2.setDrawColor(1); u8g2.setFont(u8g2_font_5x7_tf);
-    u8g2.drawStr(10, 40, "Status: ACTIVE");
-    u8g2.drawStr(10, 50, "Targets: Apple/Google");
-    u8g2.drawStr(10, 58, "Packets: SENDING");
-    u8g2.setCursor(75, 58); u8g2.print("#"); u8g2.print(AtomicUtils::safe_load(blePacketCount));
+    u8g2.drawStr(10, 38, "Status: ACTIVE");
+    u8g2.drawStr(10, 46, "Targets: Apple/Google");
+    u8g2.drawStr(10, 54, "Packets: SENDING");
+    u8g2.setCursor(75, 54); u8g2.print("#"); u8g2.print(AtomicUtils::safe_load(blePacketCount));
     
     u8g2.setFont(u8g2_font_4x6_tf);
     u8g2.drawStr(5, 62, "SELECT=STOP | NEXT=MENU");
