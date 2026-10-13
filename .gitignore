@@ -1,0 +1,47 @@
+# Prerequisites
+*.d
+*.o
+*.ko
+*.obj
+*.elf
+*.hex
+
+# Loose binary files in root (keep precompiled binaries in firmware/)
+/*.bin
+/*.zip
+/*.tar.gz
+/*.rar
+
+# Allow binaries in firmware/
+!firmware/*.bin
+
+# Arduino IDE / build caches
+build/
+output/
+sketch/
+
+# PlatformIO
+.pio/
+.pioenvs/
+
+# Editors & IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# OS specific files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.Spotlight-V100
+.Trashes
+
+# Temporary & backup files
+*.tmp
+*.bak
+*.swp
+*~
