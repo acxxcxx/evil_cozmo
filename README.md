@@ -94,20 +94,21 @@ Connect with 10kΩ pull-up resistors to 3.3V (or internal pull-up):
 ## 🛠 Repository Structure
 
 ```text
-evil_cozmo/
-├── evil_cozmo.ino       # Main Arduino sketch entry point
-├── Config.h             # Pin assignments, constants & data structures
-├── DisplayBase.h        # U8g2 OLED graphics routines & Cozmo faces
-├── KeyboardData.h       # HID keystroke injection payload mappings
-├── MenuBLE.h            # Bluetooth Low Energy spam handlers
-├── MenuMarauder.h       # Marauder sniffer & PMKID monitor handlers
-├── MenuNRF.h            # NRF24L01+ RF Jammer & MouseJack engine
-├── MenuSystem.h         # Core UI navigation, brightness & settings
-├── MenuWiFi.h           # Deauth, Evil Twin, Beacon Spam & Scanner menus
-├── WiFiLogic.h          # 802.11 frame injection & captive portal web server
-├── USER_MANUAL.md       # Comprehensive manual & companion app guide
-├── LICENSE              # MIT License
-└── firmware/            # Ready-to-flash precompiled binaries
+.
+├── evil_cozmo/              # Arduino sketch directory (ready for Arduino IDE)
+│   ├── evil_cozmo.ino       # Main Arduino sketch entry point
+│   ├── Config.h             # Pin assignments, constants & data structures
+│   ├── DisplayBase.h        # U8g2 OLED graphics routines & Cozmo faces
+│   ├── KeyboardData.h       # HID keystroke injection payload mappings
+│   ├── MenuBLE.h            # Bluetooth Low Energy spam handlers
+│   ├── MenuMarauder.h       # Marauder sniffer & PMKID monitor handlers
+│   ├── MenuNRF.h            # NRF24L01+ RF Jammer & MouseJack engine
+│   ├── MenuSystem.h         # Core UI navigation, brightness & settings
+│   ├── MenuWiFi.h           # Deauth, Evil Twin, Beacon Spam & Scanner menus
+│   └── WiFiLogic.h          # 802.11 frame injection & captive portal web server
+├── USER_MANUAL.md           # Comprehensive manual & companion app guide
+├── LICENSE                  # MIT License
+└── firmware/                # Ready-to-flash precompiled binaries
     ├── EvilCozmo_v10.bin
     ├── bootloader.bin
     ├── partitions.bin
@@ -134,7 +135,7 @@ evil_cozmo/
 * **Partition Scheme:** `Huge APP (3MB No OTA/1MB SPIFFS)` ⚠️ *(Required)*
 * **Core Debug Level:** `None`
 
-Open [`evil_cozmo.ino`](evil_cozmo.ino) and click **Upload**.
+Open [`evil_cozmo/evil_cozmo.ino`](evil_cozmo/evil_cozmo.ino) in Arduino IDE and click **Upload**.
 
 ---
 
